@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
-import 'package:flutter/foundation.dart' show debugPrint, visibleForTesting;
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
 
 const MethodChannel _channel = MethodChannel('dev.groovinchip.thumblr_macos');
