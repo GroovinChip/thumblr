@@ -1,0 +1,26 @@
+name: thumblr_macos
+description: A new flutter plugin project.
+version: 0.1.0
+homepage:
+
+environment:
+  sdk: ">=2.16.2 <3.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  thumblr_platform_interface: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0
+
+flutter:
+  plugin:
+    implements: thumblr
+    platforms:
+      macos:
+        dartPluginClass: ThumblrMacOS
+        pluginClass: ThumblrMacosPlugin
