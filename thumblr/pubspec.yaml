@@ -1,7 +1,7 @@
 name: thumblr
-description: A new Flutter package project.
+description: A federated Flutter plugin for generating video thumbnails on desktop platforms
 version: 0.0.1
-homepage:
+homepage: https://github.com/GroovinChip/thumblr/tree/main/thumblr
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
@@ -16,10 +16,8 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  thumblr_platform_interface:
-    path: ../thumblr_platform_interface
-  thumblr_macos:
-    path: ../thumblr_macos
+  thumblr_platform_interface: ^0.1.0+1
+  thumblr_macos: ^0.1.0
 
 dev_dependencies:
   flutter_test:

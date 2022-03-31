@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     try {
       _thumb = await generateThumbnail(
         filePath:
-        '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
+            '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
@@ -59,10 +59,10 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: thumbnail != null
               ? Image.memory(
-            thumbnail!,
-            height: 300,
-            width: 300,
-          )
+                  thumbnail!,
+                  height: 300,
+                  width: 300,
+                )
               : const SizedBox.shrink(),
         ),
       ),
