@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:thumblr_macos/thumblr_macos.dart';
+import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +17,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final thumblr = ThumblrMacOS();
   Uint8List? thumbnail;
 
   @override
@@ -32,7 +31,7 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     Uint8List? _thumb;
     try {
-      _thumb = await thumblr.generateThumbnail(
+      _thumb = await ThumblrPlatform.instance.generateThumbnail(
         filePath:
             '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
       );
