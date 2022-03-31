@@ -1,15 +1,22 @@
 # thumblr_macos
 
-A new flutter plugin project.
+The macOS implementation of the thumblr plugin.
 
-## Getting Started
+## Usage
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+This is an endorsed implementation of the thumblr plugin. All you need to do is depend on `thumblr`
+in your `pubspec.yaml`. You can then use the `thumblr` API normally. You should not use
+`thumblr_macos` APIs directly.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
+### Entitlements
+You will need to add an entitlement for either read-only access:
+```
+<key>com.apple.security.files.user-selected.read-only</key>
+<true/>
+```
+or read-write access:
+```
+<key>com.apple.security.files.user-selected.read-write</key>
+<true/>
+```
+depending on your use case. It may also be necessary to turn off the `app-sandbox` entitlement.
