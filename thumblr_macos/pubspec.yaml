@@ -1,7 +1,7 @@
 name: thumblr_macos
-description: A new flutter plugin project.
+description: The macOS implementation of the thumblr plugin.
 version: 0.1.0
-homepage:
+homepage: https://github.com/GroovinChip/thumblr/tree/main/thumblr_macos
 
 environment:
   sdk: ">=2.16.2 <3.0.0"

@@ -169,14 +169,14 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.1.0"
   thumblr_platform_interface:
     dependency: "direct main"
     description:
-      path: "../../thumblr_platform_interface"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: thumblr_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0+1"
   typed_data:
     dependency: transitive
     description:
