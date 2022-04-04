@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    getThumbnail();
+    //getThumbnail();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -31,8 +31,8 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     ui.Image? result;
     try {
-        filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
       result = await ThumblrPlatform.instance.generateThumbnail(
+        filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
