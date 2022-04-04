@@ -22,7 +22,6 @@ class ThumblrWindows extends ThumblrPlatform {
   @override
   Future<ui.Image> generateThumbnail({
     required String filePath,
-    double position = 0.0,
   }) async {
     final result = (await _channel.invokeMapMethod<String, dynamic>(
       'generateThumbnail',

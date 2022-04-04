@@ -38,7 +38,6 @@ abstract class ThumblrPlatform extends PlatformInterface {
   /// Generates a thumbnail for a given video file.
   Future<ui.Image> generateThumbnail({
     required String filePath,
-    double position = 0.0,
   }) {
     throw UnimplementedError('generateThumbnail() has not been implemented');
   }

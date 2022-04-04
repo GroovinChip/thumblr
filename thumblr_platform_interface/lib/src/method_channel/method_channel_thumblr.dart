@@ -17,7 +17,6 @@ class MethodChannelThumblr extends ThumblrPlatform {
   @override
   Future<ui.Image> generateThumbnail({
     required String filePath,
-    double position = 0.0,
   }) async {
     final base64Thumbnail = await _channel.invokeMethod('generateThumbnail', filePath);
     final imageData = base64.decode(base64Thumbnail);
