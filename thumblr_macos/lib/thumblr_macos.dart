@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
@@ -20,9 +20,11 @@ class ThumblrMacOS extends ThumblrPlatform {
   }
 
   @override
-  Future<Uint8List> generateThumbnail({required String filePath}) async {
+  Future<ui.Image> generateThumbnail({required String filePath}) async {
     final base64Thumbnail =
         await _channel.invokeMethod('generateThumbnail', filePath);
-    return base64Decode(base64Thumbnail);
+    final completer = Completer<ui.Image>();
+    ui.decodeImageFromList(base64Decode(base64Thumbnail), completer.complete);
+    return completer.future;
   }
 }
