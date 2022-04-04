@@ -1,8 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:thumblr_windows/thumblr_windows.dart';
+import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,24 +18,27 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  Uint8List? thumbnail;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    //getThumbnail();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
+  Future<void> getThumbnail() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
+    Uint8List? _thumb;
     try {
-      platformVersion =
-          await ThumblrWindows.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      _thumb = await ThumblrPlatform.instance.generateThumbnail(
+        filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
+      );
+    } on PlatformException catch (e) {
+      debugPrint('Failed to generate thumbnail: ${e.message}');
+    } catch (e) {
+      debugPrint('Failed to generate thumbnail: ${e.toString()}');
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -41,9 +46,7 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    setState(() => thumbnail = _thumb);
   }
 
   @override
@@ -54,7 +57,16 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: thumbnail != null
+              ? Image.memory(
+                  thumbnail!,
+                  height: 300,
+                  width: 300,
+                )
+              : ElevatedButton(
+                  onPressed: getThumbnail,
+                  child: const Text('Get thumbnail'),
+                ),
         ),
       ),
     );

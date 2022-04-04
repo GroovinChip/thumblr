@@ -1,7 +1,7 @@
 name: thumblr_windows
-description: A new flutter plugin project.
+description: The Windows implementation of the thumblr plugin
 version: 0.0.1
-homepage:
+homepage: https://github.com/GroovinChip/thumblr/tree/main/thumblr_windows
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
@@ -10,6 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  thumblr_platform_interface: ^0.1.0+1
+  path_provider: ^2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -26,8 +29,10 @@ flutter:
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
   plugin:
+    implements: thumblr
     platforms:
       windows:
+        dartPluginClass: ThumblrWindows
         pluginClass: ThumblrWindowsPlugin
 
   # To add assets to your plugin package, add an assets section, like this:

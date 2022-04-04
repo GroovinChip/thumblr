@@ -1,23 +1,29 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thumblr_windows/thumblr_windows.dart';
+import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
 
 void main() {
-  const MethodChannel channel = MethodChannel('thumblr_windows');
-
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  final ThumblrWindows plugin = ThumblrWindows();
+
+  final List<MethodCall> log = <MethodCall>[];
+
   setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '42';
+    plugin.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      log.add(methodCall);
     });
+    log.clear();
+  });
+
+  test('Registered instance', () {
+    ThumblrWindows.registerWith();
+    expect(ThumblrPlatform.instance, isA<ThumblrWindows>());
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
-  });
-
-  test('getPlatformVersion', () async {
-    expect(await ThumblrWindows.platformVersion, '42');
+    plugin.channel.setMockMethodCallHandler(null);
+    log.clear();
   });
 }
