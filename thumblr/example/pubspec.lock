@@ -169,7 +169,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2"
   thumblr_macos:
     dependency: transitive
     description:
@@ -183,7 +183,7 @@ packages:
       name: thumblr_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0+1"
+    version: "0.1.1"
   typed_data:
     dependency: transitive
     description:
