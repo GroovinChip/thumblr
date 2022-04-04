@@ -17,12 +17,22 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final _position = ValueNotifier<double>(0.0);
   ui.Image? _thumbnail;
 
   @override
   void initState() {
     super.initState();
     //getThumbnail();
+  }
+
+  void _onSeekPosition(double value) {
+    _position.value = value;
+  }
+
+  void _onSeekEnd(double value) {
+    _position.value = value;
+    getThumbnail();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -33,6 +43,7 @@ class _MyAppState extends State<MyApp> {
     try {
       result = await ThumblrPlatform.instance.generateThumbnail(
         filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
+        position: _position.value,
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
@@ -51,19 +62,29 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: _thumbnail != null
-              ? RawImage(
-                  image: _thumbnail!,
-                )
-              : ElevatedButton(
-                  onPressed: getThumbnail,
-                  child: const Text('Get thumbnail'),
+      theme: ThemeData.dark(),
+      home: Material(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: _thumbnail != null ? RawImage(image: _thumbnail!) : const SizedBox(),
                 ),
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: _position,
+              builder: (BuildContext context, double value, Widget? child) {
+                return Slider(
+                  value: value,
+                  onChanged: _onSeekPosition,
+                  onChangeEnd: _onSeekEnd,
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

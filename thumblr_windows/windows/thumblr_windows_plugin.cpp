@@ -2,7 +2,13 @@
 
 // This must be included before many other Windows headers.
 #include <windows.h>
-#include <shlobj_core.h>
+
+// Media Foundation 
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
+#include <mferror.h>
+#include <propvarutil.h>
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -10,8 +16,9 @@
 
 #include <map>
 #include <memory>
-#include <sstream>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <locale>
 #include <codecvt>
 #include <fstream>
@@ -20,6 +27,13 @@
 
 namespace
 {
+  template <class T> void SafeRelease(T** ppT)
+  {
+    if (*ppT) {
+      (*ppT)->Release();
+      *ppT = NULL;
+    }
+  }
 
   class ThumblrWindowsPlugin : public flutter::Plugin
   {
@@ -57,131 +71,216 @@ namespace
     registrar->AddPlugin(std::move(plugin));
   }
 
-  ThumblrWindowsPlugin::ThumblrWindowsPlugin() {}
-
-  ThumblrWindowsPlugin::~ThumblrWindowsPlugin() {}
-
-  std::wstring ConvertAnsiToWide(const std::string &str)
-  {
-    int count = MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), NULL, 0);
-    std::wstring wstr(count, 0);
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), &wstr[0], count);
-    return wstr;
+  ThumblrWindowsPlugin::ThumblrWindowsPlugin() {
+  
+      // Initialize Media Foundation.
+      HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+      if (SUCCEEDED(hr)) {
+          hr = MFStartup(MF_VERSION);
+      }
   }
 
-  HBITMAP GetThumbnail(std::wstring file)
-  {
-    std::wstring folder, fileName;
-    size_t pos = file.find_last_of(L"\\");
-    folder = file.substr(0, pos);
-    fileName = file.substr(pos + 1);
-
-    IShellFolder *pDesktop = NULL;
-    IShellFolder *pSub = NULL;
-    IExtractImage *pIExtract = NULL;
-    LPITEMIDLIST pidl = NULL;
-
-    HRESULT hr;
-    hr = SHGetDesktopFolder(&pDesktop);
-    if (FAILED(hr))
-      return NULL;
-    hr = pDesktop->ParseDisplayName(NULL, NULL, (LPWSTR)folder.c_str(), NULL, &pidl, NULL);
-    if (FAILED(hr))
-      return NULL;
-    hr = pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, (void **)&pSub);
-    if (FAILED(hr))
-      return NULL;
-    hr = pSub->ParseDisplayName(NULL, NULL, (LPWSTR)fileName.c_str(), NULL, &pidl, NULL);
-    if (FAILED(hr))
-      return NULL;
-    hr = pSub->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST *)&pidl, IID_IExtractImage, NULL, (void **)&pIExtract);
-    if (FAILED(hr))
-      return NULL;
-
-    SIZE size;
-    size.cx = 1280;
-    size.cy = 720;
-
-    DWORD dwFlags = IEIFLAG_ORIGSIZE | IEIFLAG_QUALITY;
-
-    HBITMAP hThumbnail = NULL;
-
-    // Set up the options for the image
-    OLECHAR pathBuffer[MAX_PATH];
-    hr = pIExtract->GetLocation(pathBuffer, MAX_PATH, NULL, &size, 32, &dwFlags);
-
-    // Get the image
-    hr = pIExtract->Extract(&hThumbnail);
-
-    pDesktop->Release();
-    pSub->Release();
-
-    return hThumbnail;
+  ThumblrWindowsPlugin::~ThumblrWindowsPlugin() {
+      MFShutdown();
+      CoUninitialize();
   }
 
-  std::vector<unsigned char> ToPixels(HBITMAP hBitmap, BITMAPINFOHEADER *bmi)
+  HRESULT CanSeekMedia(IMFSourceReader* pReader, BOOL* pbCanSeek)
   {
-    BITMAP bmp;
+      HRESULT hr = S_OK;
+      ULONG flags = 0;
+      PROPVARIANT var;
+      PropVariantInit(&var);
 
-    HDC hDC = CreateCompatibleDC(NULL);
-    HGDIOBJ oldBitmap = SelectObject(hDC, hBitmap);
-    GetObject(hBitmap, sizeof(BITMAP), &bmp);
-    SelectObject(hDC, oldBitmap);
+      if (pReader == NULL) {
+          return MF_E_NOT_INITIALIZED;
+      }
 
-    BITMAPINFOHEADER bi;
-    bi.biSize = sizeof(BITMAPINFOHEADER);
-    bi.biWidth = bmp.bmWidth;
-    bi.biHeight = -bmp.bmHeight;
-    bi.biPlanes = 1;
-    bi.biBitCount = 32;
-    bi.biCompression = BI_RGB;
-    bi.biSizeImage = 0;
-    bi.biXPelsPerMeter = 0;
-    bi.biYPelsPerMeter = 0;
-    bi.biClrUsed = 0;
-    bi.biClrImportant = 0;
+      *pbCanSeek = FALSE;
+      hr = pReader->GetPresentationAttribute((DWORD)MF_SOURCE_READER_MEDIASOURCE,
+          MF_SOURCE_READER_MEDIASOURCE_CHARACTERISTICS, &var);
+      if (SUCCEEDED(hr)) {
+          hr = PropVariantToUInt32(var, &flags);
+      }
+      if (SUCCEEDED(hr)) {
+          // If the source has slow seeking, we will treat it as
+          // not supporting seeking. 
+          if ((flags & MFMEDIASOURCE_CAN_SEEK) && !(flags & MFMEDIASOURCE_HAS_SLOW_SEEK)) {
+              *pbCanSeek = TRUE;
+          }
+      }
 
-    size_t uSize = ((bmp.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmp.bmHeight;
-    std::vector<unsigned char> uData = std::vector<unsigned char>(uSize);
-    uData.resize(uSize);
+      return hr;
+  }
 
-    GetDIBits(hDC, hBitmap, 0, bi.biHeight, &uData[0], (BITMAPINFO *)&bi, DIB_RGB_COLORS);
-    std::memcpy(bmi, &bi, bi.biSize);
+  HRESULT GetMediaDuration(IMFSourceReader* pReader, LONGLONG* pDuration)
+  {
+      PROPVARIANT var;
+      PropVariantInit(&var);
 
-    DeleteDC(hDC);
+      HRESULT hr = S_OK;
+      if (pReader == NULL) {
+          return MF_E_NOT_INITIALIZED;
+      }
 
-    return uData;
+      hr = pReader->GetPresentationAttribute((DWORD)MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &var);
+      if (SUCCEEDED(hr)) {
+          assert(var.vt == VT_UI8);
+          *pDuration = var.hVal.QuadPart;
+      }
+
+      return hr;
+  }
+
+  HRESULT GetThumbnail(std::wstring file, std::vector<unsigned char> &data, 
+      unsigned int *width, unsigned int *height, double position)
+  {
+      HRESULT hr = S_OK;
+      IMFAttributes* pAttributes = NULL;
+      IMFSourceReader* m_pReader = NULL;
+      IMFMediaType* pType = NULL;
+      GUID subtype = { 0 };
+      BOOL bCanSeek = FALSE;
+      IMFSample* pSample = NULL;
+      DWORD dwFlags = 0;
+      IMFMediaBuffer* pBuffer = NULL;
+      BYTE* pBitmapData = NULL;    // Bitmap data
+      DWORD cbBitmapData = 0;      // Size of data, in bytes
+      
+      // Configure the source reader to perform video processing.
+      //
+      // This includes:
+      //   - YUV to RGB-32
+      //   - Software deinterlace
+      hr = MFCreateAttributes(&pAttributes, 1);
+      if (SUCCEEDED(hr)){
+          hr = pAttributes->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
+      }
+      
+      // Create the source reader from the URL.
+      if (SUCCEEDED(hr)){
+          hr = MFCreateSourceReaderFromURL(file.c_str(), pAttributes, &m_pReader);
+      }
+      
+      // Configure the source reader to give us progressive RGB32 frames.
+      // The source reader will load the decoder if needed.
+      hr = MFCreateMediaType(&pType);
+      if (SUCCEEDED(hr)) {
+          hr = pType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+      }
+      if (SUCCEEDED(hr)) {
+          hr = pType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
+      }
+      if (SUCCEEDED(hr)) {
+          hr = m_pReader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, pType);
+      }
+      SafeRelease(&pType);
+
+      // Ensure the stream is selected.
+      if (SUCCEEDED(hr)) {
+          hr = m_pReader->SetStreamSelection((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, TRUE);
+      }
+      
+      // Get the media type from the stream.
+      hr = m_pReader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pType);
+      if (FAILED(hr)) { goto done; }
+
+      // Make sure it is a video format.
+      hr = pType->GetGUID(MF_MT_SUBTYPE, &subtype);
+      if (subtype != MFVideoFormat_RGB32) {
+          hr = E_UNEXPECTED;
+          goto done;
+      }
+
+      // Get the width and height
+      hr = MFGetAttributeSize(pType, MF_MT_FRAME_SIZE, width, height);
+      if (FAILED(hr)) { goto done; }
+
+      // Can we seek the media?
+      hr = CanSeekMedia(m_pReader, &bCanSeek);
+      if (FAILED(hr)) { goto done; }
+
+      // Determine the duration of the media
+      LONGLONG duration;
+      hr = GetMediaDuration(m_pReader, &duration);
+      if (FAILED(hr)) { goto done; }
+      LONGLONG offset = (LONGLONG)(duration * position);
+
+      // Seek to position
+      if (bCanSeek && (offset > 0))  {
+          PROPVARIANT var;
+          PropVariantInit(&var);
+          var.vt = VT_I8;
+          var.hVal.QuadPart = offset;
+          hr = m_pReader->SetCurrentPosition(GUID_NULL, var);
+          if (FAILED(hr)) { goto done; }
+      }
+
+      hr = m_pReader->ReadSample((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, &dwFlags, NULL, &pSample);
+      if (FAILED(hr)) { goto done; }
+
+      hr = pSample->ConvertToContiguousBuffer(&pBuffer);
+      if (FAILED(hr)) { goto done; }
+
+      hr = pBuffer->Lock(&pBitmapData, NULL, &cbBitmapData);
+
+      if (FAILED(hr)) { goto done; }
+
+      data.resize(cbBitmapData);
+      std::memcpy(&data[0], pBitmapData, cbBitmapData);
+      
+done:
+      if (pBitmapData && pBuffer)  {
+          pBuffer->Unlock();
+      }
+      SafeRelease(&pBuffer);
+      SafeRelease(&pSample);
+      SafeRelease(&pType);
+      SafeRelease(&m_pReader);
+
+      return hr;
+  }
+
+  std::wstring ConvertAnsiToWide(const std::string& str)
+  {
+      int count = MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), NULL, 0);
+      std::wstring wstr(count, 0);
+      MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), &wstr[0], count);
+      return wstr;
   }
 
   void ThumblrWindowsPlugin::HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result)
   {
-    if (method_call.method_name().compare("generateThumbnail") == 0)
-    {
-      const flutter::EncodableValue *arguments = method_call.arguments();
-      std::string path = std::get<std::string>(*arguments);
-
-      std::wstring wstr = ConvertAnsiToWide(path);
-
-      // std::wcout << wstr << std::endl;
-
-      HBITMAP hBitmap = GetThumbnail(wstr);
-      BITMAPINFOHEADER bmInfo = { 0 };
-      std::vector<unsigned char> pixels = ToPixels(hBitmap, &bmInfo);
-      DeleteObject(hBitmap);
+    if (method_call.method_name().compare("generateThumbnail") == 0) {
+      const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+      auto* path = std::get_if<std::string>(&(arguments->find(flutter::EncodableValue("filePath"))->second));
+      auto* position = std::get_if<double>(&(arguments->find(flutter::EncodableValue("position"))->second));
+      if (!arguments || !path || !position) {
+        result->Error("invalid_args", "Expected map with filePath and position.");
+        return;
+      }
       
-      result->Success(flutter::EncodableMap{
-        { "width" , bmInfo.biWidth },
-        { "height", -bmInfo.biHeight },
-        { "depth" , bmInfo.biBitCount },
-        { "data"  , pixels },
-      });
-
-
-    }
-    else
-    {
+      std::wstring wstr = ConvertAnsiToWide(*path);
+      std::vector<unsigned char> pixels = std::vector<unsigned char>();
+      unsigned int width = 0, height = 0, depth = 32;
+      HRESULT hr = GetThumbnail(wstr, pixels, &width, &height, *position);
+      if (FAILED(hr)) {
+        std::ostringstream out;
+        out << "failed width error: 0x" << std::uppercase << 
+            std::setfill('0') << std::setw(8) << std::hex << (int)hr;
+        result->Error("failed", out.str());
+      }
+      else {
+        result->Success(flutter::EncodableMap{
+          { "width" , static_cast<int64_t>(width)  },
+          { "height", static_cast<int64_t>(height) },
+          { "depth" , static_cast<int64_t>(depth)  },
+          { "data"  , pixels },
+        });
+      }
+    } else {
       result->NotImplemented();
     }
   }
