@@ -99,8 +99,8 @@ namespace
       return NULL;
 
     SIZE size;
-    size.cx = 300;
-    size.cy = 300;
+    size.cx = 1280;
+    size.cy = 720;
 
     DWORD dwFlags = IEIFLAG_ORIGSIZE | IEIFLAG_QUALITY;
 
