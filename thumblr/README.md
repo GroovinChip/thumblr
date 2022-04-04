@@ -3,7 +3,7 @@ A federated Flutter plugin for generating video thumbnails on desktop platforms
 
 ## Supported platforms
 - [x] macOS
-- [ ] Windows
+- [x] Windows
 - [ ] Linux
 
 ## Usage
