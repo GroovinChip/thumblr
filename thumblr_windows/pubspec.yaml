@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  thumblr_platform_interface: ^0.1.0+1
+  thumblr_platform_interface: ^0.1.1
   path_provider: ^2.0.9
 
 dev_dependencies:
