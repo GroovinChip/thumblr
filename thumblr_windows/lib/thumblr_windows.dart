@@ -23,8 +23,6 @@ class ThumblrWindows extends ThumblrPlatform {
 
   @override
   Future<Uint8List> generateThumbnail({required String filePath}) async {
-    final thumbnailBytes =
-        await _channel.invokeMethod('generateThumbnail', filePath);
-    return Uint8List.fromList(thumbnailBytes);
+    return await _channel.invokeMethod('generateThumbnail', filePath);
   }
 }
