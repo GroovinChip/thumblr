@@ -19,7 +19,8 @@ dependencies:
   flutter:
     sdk: flutter
   thumblr_platform_interface: ^0.1.1
-  thumblr_macos: ^0.1.0
+  thumblr_macos: ^0.1.1
+  thumblr_windows: ^0.0.1
 
 dev_dependencies:
   flutter_test:
