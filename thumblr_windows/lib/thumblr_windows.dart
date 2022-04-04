@@ -37,7 +37,9 @@ class ThumblrWindows extends ThumblrPlatform {
     debugPrint(
         'generateThumbnail returned ${width}x${height}x${depth}bit with ${data.lengthInBytes} bytes');
     final completer = Completer<ui.Image>();
-    ui.decodeImageFromPixels(data, width, height, ui.PixelFormat.rgba8888, completer.complete);
+    // could also be rgba8888 on some systems
+    ui.decodeImageFromPixels(
+        data, width, height, ui.PixelFormat.bgra8888, completer.complete);
     return completer.future;
   }
 }
