@@ -11,5 +11,3 @@ You can then use the `thumblr` API normally. You should not use
 
 ## Setup
 
-You will need to install `ffmpeg` on your machine and include it in
-your `PATH` environment variable.
