@@ -1,8 +1,7 @@
-import 'dart:typed_data';
+import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
 
@@ -18,22 +17,22 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Uint8List? thumbnail;
+  ui.Image? _thumbnail;
 
   @override
   void initState() {
     super.initState();
-    //getThumbnail();
+    getThumbnail();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> getThumbnail() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
-    Uint8List? _thumb;
+    ui.Image? result;
     try {
-      _thumb = await ThumblrPlatform.instance.generateThumbnail(
         filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
+      result = await ThumblrPlatform.instance.generateThumbnail(
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
@@ -44,9 +43,9 @@ class _MyAppState extends State<MyApp> {
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() => thumbnail = _thumb);
+    if (mounted) {
+      setState(() => _thumbnail = result);
+    }
   }
 
   @override
@@ -57,11 +56,9 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: thumbnail != null
-              ? Image.memory(
-                  thumbnail!,
-                  height: 300,
-                  width: 300,
+          child: _thumbnail != null
+              ? RawImage(
+                  image: _thumbnail!,
                 )
               : ElevatedButton(
                   onPressed: getThumbnail,

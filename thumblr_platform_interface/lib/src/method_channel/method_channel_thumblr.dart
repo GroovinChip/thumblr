@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
@@ -14,9 +15,14 @@ class MethodChannelThumblr extends ThumblrPlatform {
   MethodChannel get channel => _channel;
 
   @override
-  Future<Uint8List> generateThumbnail({required String filePath}) async {
-    final base64Thumbnail =
-        await _channel.invokeMethod('generateThumbnail', filePath);
-    return base64Decode(base64Thumbnail);
+  Future<ui.Image> generateThumbnail({
+    required String filePath,
+    double position = 0.0,
+  }) async {
+    final base64Thumbnail = await _channel.invokeMethod('generateThumbnail', filePath);
+    final imageData = base64.decode(base64Thumbnail);
+    final completer = Completer<ui.Image>();
+    ui.decodeImageFromList(imageData, completer.complete);
+    return completer.future;
   }
 }

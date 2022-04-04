@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:thumblr_platform_interface/src/method_channel/method_channel_thumblr.dart';
@@ -36,8 +36,9 @@ abstract class ThumblrPlatform extends PlatformInterface {
   }
 
   /// Generates a thumbnail for a given video file.
-  Future<Uint8List> generateThumbnail({
+  Future<ui.Image> generateThumbnail({
     required String filePath,
+    double position = 0.0,
   }) {
     throw UnimplementedError('generateThumbnail() has not been implemented');
   }

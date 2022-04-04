@@ -119,32 +119,38 @@ namespace
     return hThumbnail;
   }
 
-  std::vector<unsigned char> ToPixels(HBITMAP BitmapHandle)
+  std::vector<unsigned char> ToPixels(HBITMAP hBitmap, BITMAPINFOHEADER *bmi)
   {
-    BITMAP Bmp = {0};
-    BITMAPINFO Info = {0};
-    std::vector<unsigned char> Pixels = std::vector<unsigned char>();
+    BITMAP bmp;
 
-    HDC DC = CreateCompatibleDC(NULL);
-    std::memset(&Info, 0, sizeof(BITMAPINFO)); // not necessary really..
-    HBITMAP OldBitmap = (HBITMAP)SelectObject(DC, BitmapHandle);
-    GetObject(BitmapHandle, sizeof(Bmp), &Bmp);
+    HDC hDC = CreateCompatibleDC(NULL);
+    HGDIOBJ oldBitmap = SelectObject(hDC, hBitmap);
+    GetObject(hBitmap, sizeof(BITMAP), &bmp);
+    SelectObject(hDC, oldBitmap);
 
-    Info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    Info.bmiHeader.biWidth = Bmp.bmWidth;
-    Info.bmiHeader.biHeight = Bmp.bmHeight;
-    Info.bmiHeader.biPlanes = 1;
-    Info.bmiHeader.biBitCount = Bmp.bmBitsPixel;
-    Info.bmiHeader.biCompression = BI_RGB;
-    Info.bmiHeader.biSizeImage = ((Info.bmiHeader.biWidth * Bmp.bmBitsPixel + 31) / 32) * 4 * Info.bmiHeader.biHeight;
+    BITMAPINFOHEADER bi;
+    bi.biSize = sizeof(BITMAPINFOHEADER);
+    bi.biWidth = bmp.bmWidth;
+    bi.biHeight = -bmp.bmHeight;
+    bi.biPlanes = 1;
+    bi.biBitCount = 32;
+    bi.biCompression = BI_RGB;
+    bi.biSizeImage = 0;
+    bi.biXPelsPerMeter = 0;
+    bi.biYPelsPerMeter = 0;
+    bi.biClrUsed = 0;
+    bi.biClrImportant = 0;
 
-    Pixels.resize(Info.bmiHeader.biSizeImage);
-    GetDIBits(DC, BitmapHandle, 0, Info.bmiHeader.biHeight, &Pixels[0], &Info, DIB_RGB_COLORS);
-    SelectObject(DC, OldBitmap);
+    size_t uSize = ((bmp.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmp.bmHeight;
+    std::vector<unsigned char> uData = std::vector<unsigned char>(uSize);
+    uData.resize(uSize);
 
-    // height = std::abs(height);
-    DeleteDC(DC);
-    return Pixels;
+    GetDIBits(hDC, hBitmap, 0, bi.biHeight, &uData[0], (BITMAPINFO *)&bi, DIB_RGB_COLORS);
+    std::memcpy(bmi, &bi, bi.biSize);
+
+    DeleteDC(hDC);
+
+    return uData;
   }
 
   void ThumblrWindowsPlugin::HandleMethodCall(
@@ -161,8 +167,18 @@ namespace
       // std::wcout << wstr << std::endl;
 
       HBITMAP hBitmap = GetThumbnail(wstr);
-      std::vector<unsigned char> pixels = ToPixels(hBitmap);
-      result->Success(flutter::EncodableValue(pixels));
+      BITMAPINFOHEADER bmInfo = { 0 };
+      std::vector<unsigned char> pixels = ToPixels(hBitmap, &bmInfo);
+      DeleteObject(hBitmap);
+      
+      result->Success(flutter::EncodableMap{
+        { "width" , bmInfo.biWidth },
+        { "height", -bmInfo.biHeight },
+        { "depth" , bmInfo.biBitCount },
+        { "data"  , pixels },
+      });
+
+
     }
     else
     {
