@@ -1,6 +1,6 @@
 name: thumblr_platform_interface
 description: A common platform interface for the thumblr plugin.
-version: 0.1.0+1
+version: 0.1.1
 homepage: https://github.com/GroovinChip/thumblr
 
 environment:
