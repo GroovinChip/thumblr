@@ -1,6 +1,6 @@
 name: thumblr_windows
 description: The Windows implementation of the thumblr plugin
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/GroovinChip/thumblr/tree/main/thumblr_windows
 
 environment:
