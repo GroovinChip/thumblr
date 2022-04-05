@@ -1,3 +1,6 @@
+## 0.2.0
+* `position` parameter
+
 ## 0.1.1
 * Update to `thumblr_platform_interface: 0.1.1`
 

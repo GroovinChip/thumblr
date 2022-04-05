@@ -17,11 +17,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ui.Image? thumbnail;
+  final _position = ValueNotifier<double>(0.0);
+  ui.Image? _thumbnail;
 
   @override
   void initState() {
     super.initState();
+    getThumbnail();
+  }
+
+  void _onSeekPosition(double value) {
+    _position.value = value;
+  }
+
+  void _onSeekEnd(double value) {
+    _position.value = value;
     getThumbnail();
   }
 
@@ -34,6 +44,7 @@ class _MyAppState extends State<MyApp> {
       _thumb = await ThumblrPlatform.instance.generateThumbnail(
         filePath:
             '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
+        position: _position.value,
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
@@ -46,20 +57,36 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() => thumbnail = _thumb);
+    setState(() => _thumbnail = _thumb);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: thumbnail != null
-              ? RawImage(image: thumbnail)
-              : const SizedBox.shrink(),
+      home: Material(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: _thumbnail != null
+                      ? RawImage(image: _thumbnail!)
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: _position,
+              builder: (BuildContext context, double value, Widget? child) {
+                return Slider(
+                  value: value,
+                  onChanged: _onSeekPosition,
+                  onChangeEnd: _onSeekEnd,
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
