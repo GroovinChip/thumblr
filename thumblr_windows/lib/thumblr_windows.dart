@@ -22,12 +22,15 @@ class ThumblrWindows extends ThumblrPlatform {
   @override
   Future<ui.Image> generateThumbnail({
     required String filePath,
-    required double position,
+    double position = 0.0,
   }) async {
-    final result = (await _channel.invokeMapMethod<String, dynamic>('generateThumbnail', {
-      'filePath': filePath,
-      'position': position,
-    }))!;
+    final result = (await _channel.invokeMapMethod<String, dynamic>(
+      'generateThumbnail',
+      {
+        'filePath': filePath,
+        'position': position,
+      },
+    ))!;
     final width = result['width'] as int;
     final height = result['height'] as int;
     final depth = result['depth'] as int;
@@ -36,7 +39,8 @@ class ThumblrWindows extends ThumblrPlatform {
     debugPrint(
         'generateThumbnail returned ${width}x${height}x${depth}bit with ${data.lengthInBytes} bytes');
     final completer = Completer<ui.Image>();
-    ui.decodeImageFromPixels(data, width, height, ui.PixelFormat.bgra8888, completer.complete);
+    ui.decodeImageFromPixels(
+        data, width, height, ui.PixelFormat.bgra8888, completer.complete);
     return completer.future;
   }
 }

@@ -70,7 +70,9 @@ class _MyAppState extends State<MyApp> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
-                  child: _thumbnail != null ? RawImage(image: _thumbnail!) : const SizedBox(),
+                  child: _thumbnail != null
+                      ? RawImage(image: _thumbnail!)
+                      : const SizedBox.shrink(),
                 ),
               ),
             ),

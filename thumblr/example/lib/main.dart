@@ -32,8 +32,7 @@ class _MyAppState extends State<MyApp> {
     ui.Image? _thumb;
     try {
       _thumb = await generateThumbnail(
-        filePath:
-            '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
+        filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
