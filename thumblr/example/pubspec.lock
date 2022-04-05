@@ -253,21 +253,21 @@ packages:
       name: thumblr_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0"
   thumblr_platform_interface:
     dependency: transitive
     description:
       name: thumblr_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0"
   thumblr_windows:
     dependency: transitive
     description:
       name: thumblr_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   typed_data:
     dependency: transitive
     description:
