@@ -1,3 +1,6 @@
+## 0.2.0
+* NEW: position parameter
+
 ## 0.1.1
 * Return a `ui.Image` instead of a `Uint8List`
 
