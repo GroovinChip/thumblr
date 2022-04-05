@@ -25,7 +25,7 @@ depending on your use case. It may also be necessary to turn off the `app-sandbo
 
 #### Generate a thumbnail for a local video file
 ```dart
-final thumbnailBytes = await thumblr.generateThumbnail(
+final thumbnailBytes = await generateThumbnail(
   filePath: 'path/to/video.mp4',
 );
 

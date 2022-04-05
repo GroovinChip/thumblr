@@ -1,3 +1,6 @@
+## 0.0.2+1
+* Minor bug fix
+
 ## 0.0.2
 * Windows support
 
