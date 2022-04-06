@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:thumblr_linux/thumblr_linux.dart';
+import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,45 +17,76 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  final _position = ValueNotifier<double>(0.0);
+  ui.Image? _thumbnail;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    //getThumbnail();
+  }
+
+  void _onSeekPosition(double value) {
+    _position.value = value;
+  }
+
+  void _onSeekEnd(double value) {
+    _position.value = value;
+    getThumbnail();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
+  Future<void> getThumbnail() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
+    ui.Image? result;
     try {
-      platformVersion =
-          await ThumblrLinux.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      result = await ThumblrPlatform.instance.generateThumbnail(
+        filePath: 'C:\\Users\\groovinchip\\Videos\\gallery nav controls.mp4',
+        position: _position.value,
+      );
+    } on PlatformException catch (e) {
+      debugPrint('Failed to generate thumbnail: ${e.message}');
+    } catch (e) {
+      debugPrint('Failed to generate thumbnail: ${e.toString()}');
     }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    if (mounted) {
+      setState(() => _thumbnail = result);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+      theme: ThemeData.dark(),
+      home: Material(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: _thumbnail != null
+                      ? RawImage(image: _thumbnail!)
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: _position,
+              builder: (BuildContext context, double value, Widget? child) {
+                return Slider(
+                  value: value,
+                  onChanged: _onSeekPosition,
+                  onChangeEnd: _onSeekEnd,
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
