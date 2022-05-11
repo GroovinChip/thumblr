@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _position = ValueNotifier<double>(0.0);
-  ui.Image? _thumbnail;
+  Thumbnail? _thumbnail;
 
   @override
   void initState() {
@@ -39,9 +38,9 @@ class _MyAppState extends State<MyApp> {
   Future<void> getThumbnail() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
-    ui.Image? _thumb;
+    Thumbnail? _result;
     try {
-      _thumb = await ThumblrPlatform.instance.generateThumbnail(
+      _result = await ThumblrPlatform.instance.generateThumbnail(
         filePath:
             '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
         position: _position.value,
@@ -57,7 +56,7 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() => _thumbnail = _thumb);
+    setState(() => _thumbnail = _result);
   }
 
   @override
@@ -70,21 +69,33 @@ class _MyAppState extends State<MyApp> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
-                  child: _thumbnail != null
-                      ? RawImage(image: _thumbnail!)
+                  child: _thumbnail?.image != null
+                      ? RawImage(image: _thumbnail?.image)
                       : const SizedBox.shrink(),
                 ),
               ),
             ),
-            ValueListenableBuilder(
-              valueListenable: _position,
-              builder: (BuildContext context, double value, Widget? child) {
-                return Slider(
-                  value: value,
-                  onChanged: _onSeekPosition,
-                  onChangeEnd: _onSeekEnd,
-                );
-              },
+            Row(
+              children: [
+                const SizedBox(width: 8.0),
+                const Text('0.0'),
+                Expanded(
+                  child: ValueListenableBuilder(
+                    valueListenable: _position,
+                    builder: (BuildContext context, double value, Widget? child) {
+                      return Slider(
+                        min: 0.0,
+                        max: _thumbnail?.videoDuration ?? 1.0,
+                        value: value,
+                        onChanged: _onSeekPosition,
+                        onChangeEnd: _onSeekEnd,
+                      );
+                    },
+                  ),
+                ),
+                Text('${_thumbnail?.videoDuration ?? 1.0}'),
+                const SizedBox(width: 8.0),
+              ],
             ),
           ],
         ),

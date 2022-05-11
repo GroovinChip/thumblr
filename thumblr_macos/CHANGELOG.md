@@ -1,3 +1,6 @@
+## 0.3.0
+* Update to latest version `thumblr_platform_interface` and subsequent changes
+
 ## 0.2.0
 * `position` parameter
 

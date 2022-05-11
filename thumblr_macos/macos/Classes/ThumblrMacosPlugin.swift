@@ -24,7 +24,9 @@ public class ThumblrMacosPlugin: NSObject, FlutterPlugin {
             let image = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
             let data = image.tiffRepresentation!
             let base64String = data.base64EncodedString()
-            let resultMap = ["data": base64String]
+            let duration = asset.duration
+            let durationTime = CMTimeGetSeconds(duration)
+            let resultMap = ["data": base64String, "videoLength": durationTime] as [String : Any]
             result(resultMap)
           } catch let error {
             print("*** Error generating thumbnail: \(error.localizedDescription)")

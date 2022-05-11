@@ -20,7 +20,7 @@ class ThumblrMacOS extends ThumblrPlatform {
   }
 
   @override
-  Future<ui.Image> generateThumbnail({
+  Future<Thumbnail> generateThumbnail({
     required String filePath,
     double position = 0.0,
   }) async {
@@ -31,9 +31,14 @@ class ThumblrMacOS extends ThumblrPlatform {
         'position': position.round(),
       },
     ))!;
-    final data = base64Decode(result['data']);
+    final videoLength = result['videoLength'] as double;
+    final imageData = base64Decode(result['data']);
     final completer = Completer<ui.Image>();
-    ui.decodeImageFromList(data, completer.complete);
-    return completer.future;
+    ui.decodeImageFromList(imageData, completer.complete);
+    final image = await completer.future;
+    return Thumbnail(
+      image: image,
+      videoDuration: videoLength,
+    );
   }
 }
