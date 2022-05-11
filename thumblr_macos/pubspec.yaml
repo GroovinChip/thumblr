@@ -1,6 +1,6 @@
 name: thumblr_macos
 description: The macOS implementation of the thumblr plugin.
-version: 0.3.0
+version: 0.3.0+1
 homepage: https://github.com/GroovinChip/thumblr/tree/main/thumblr_macos
 
 environment:

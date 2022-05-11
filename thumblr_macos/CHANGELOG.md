@@ -1,3 +1,6 @@
+## 0.3.0+1
+* run `flutter format`
+
 ## 0.3.0
 * Update to latest version `thumblr_platform_interface` and subsequent changes
 
