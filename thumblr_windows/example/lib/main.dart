@@ -78,11 +78,8 @@ class _MyAppState extends State<MyApp> {
             ValueListenableBuilder(
               valueListenable: _position,
               builder: (BuildContext context, double value, Widget? child) {
-                print(value);
                 return Slider(
                   value: value,
-                  min: 0.0,
-                  max: _thumbnail?.videoDuration! ?? 1.0,
                   onChanged: _onSeekPosition,
                   onChangeEnd: _onSeekEnd,
                 );

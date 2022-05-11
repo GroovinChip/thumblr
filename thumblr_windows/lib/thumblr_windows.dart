@@ -34,7 +34,7 @@ class ThumblrWindows extends ThumblrPlatform {
     final width = result['width'] as int;
     final height = result['height'] as int;
     final depth = result['depth'] as int;
-    final videoDuration = double.parse('${result['videoDuration']}');
+    final videoDuration = result['videoDuration'] as double;
     final data = result['data'] as Uint8List;
     assert(depth == 32, '$depth bit not supported');
     debugPrint(
@@ -48,7 +48,7 @@ class ThumblrWindows extends ThumblrPlatform {
       width: width,
       height: height,
       depth: depth,
-      videoDuration: videoDuration / 10000000,
+      videoDuration: videoDuration,
     );
   }
 }

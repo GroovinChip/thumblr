@@ -278,7 +278,7 @@ done:
           { "width" , static_cast<int64_t>(width)  },
           { "height", static_cast<int64_t>(height) },
           { "depth" , static_cast<int64_t>(depth)  },
-          { "videoDuration" , static_cast<int64_t>(duration)  },
+          { "videoDuration" , static_cast<double>(((double)duration) / 10000000.0 )  },
           { "data"  , pixels },
         });
       }
