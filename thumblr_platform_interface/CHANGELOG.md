@@ -1,3 +1,6 @@
+## 0.3.0+1
+* Export the `Thumbnail` class
+
 ## 0.3.0
 * `generateThumbnail` now returns a `Thumbnail` class so that more data related to the thumbnail can be returned.
 For example, the `width` and `height` of the thumbnail can be returned, as well as the duration of the video file.
