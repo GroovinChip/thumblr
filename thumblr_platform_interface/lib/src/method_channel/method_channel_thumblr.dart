@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
 import 'package:thumblr_platform_interface/src/platform_interface/thumblr_platform_interface.dart';
+import 'package:thumblr_platform_interface/src/platform_interface/thumbnail.dart';
 
 const MethodChannel _channel = MethodChannel('dev.groovinchip.thumblr');
 
@@ -15,7 +16,7 @@ class MethodChannelThumblr extends ThumblrPlatform {
   MethodChannel get channel => _channel;
 
   @override
-  Future<Map<String, dynamic>> generateThumbnail({
+  Future<Thumbnail> generateThumbnail({
     required String filePath,
     double position = 0.0,
   }) async {
@@ -31,9 +32,9 @@ class MethodChannelThumblr extends ThumblrPlatform {
     final completer = Completer<ui.Image>();
     ui.decodeImageFromList(imageData, completer.complete);
     final image = await completer.future;
-    return {
-      'image': image,
-      'videoLength': videoLength,
-    };
+    return Thumbnail(
+      image: image,
+      videoDuration: Duration(seconds: videoLength),
+    );
   }
 }

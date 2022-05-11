@@ -1,5 +1,6 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:thumblr_platform_interface/src/method_channel/method_channel_thumblr.dart';
+import 'package:thumblr_platform_interface/src/platform_interface/thumbnail.dart';
 
 /// {@template thumblrPlatform}
 /// The interface that implementations of `thumblr` must implement.
@@ -34,7 +35,7 @@ abstract class ThumblrPlatform extends PlatformInterface {
   }
 
   /// Generates a thumbnail for a given video file.
-  Future<Map<String, dynamic>> generateThumbnail({
+  Future<Thumbnail> generateThumbnail({
     required String filePath,
     double position = 0.0,
   }) {
