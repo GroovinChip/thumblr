@@ -133,7 +133,7 @@ namespace
   }
 
   HRESULT GetThumbnail(std::wstring file, std::vector<unsigned char> &data, 
-      unsigned int *width, unsigned int *height, double position)
+      unsigned int *width, unsigned int *height, LONGLONG* duration, double position)
   {
       HRESULT hr = S_OK;
       IMFAttributes* pAttributes = NULL;
@@ -201,10 +201,10 @@ namespace
       if (FAILED(hr)) { goto done; }
 
       // Determine the duration of the media
-      LONGLONG duration;
-      hr = GetMediaDuration(m_pReader, &duration);
+      //LONGLONG duration;
+      hr = GetMediaDuration(m_pReader, duration);
       if (FAILED(hr)) { goto done; }
-      LONGLONG offset = (LONGLONG)(duration * position);
+      LONGLONG offset = (LONGLONG)(*duration * position);
 
       // Seek to position
       if (bCanSeek && (offset > 0))  {
@@ -265,7 +265,8 @@ done:
       std::wstring wstr = ConvertAnsiToWide(*path);
       std::vector<unsigned char> pixels = std::vector<unsigned char>();
       unsigned int width = 0, height = 0, depth = 32;
-      HRESULT hr = GetThumbnail(wstr, pixels, &width, &height, *position);
+      LONGLONG duration;
+      HRESULT hr = GetThumbnail(wstr, pixels, &width, &height, &duration, *position);
       if (FAILED(hr)) {
         std::ostringstream out;
         out << "failed width error: 0x" << std::uppercase << 
@@ -277,6 +278,7 @@ done:
           { "width" , static_cast<int64_t>(width)  },
           { "height", static_cast<int64_t>(height) },
           { "depth" , static_cast<int64_t>(depth)  },
+          { "videoDuration" , static_cast<int64_t>(duration)  },
           { "data"  , pixels },
         });
       }

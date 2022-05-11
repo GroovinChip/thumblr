@@ -20,7 +20,7 @@ class ThumblrWindows extends ThumblrPlatform {
   }
 
   @override
-  Future<ui.Image> generateThumbnail({
+  Future<Thumbnail> generateThumbnail({
     required String filePath,
     double position = 0.0,
   }) async {
@@ -34,6 +34,7 @@ class ThumblrWindows extends ThumblrPlatform {
     final width = result['width'] as int;
     final height = result['height'] as int;
     final depth = result['depth'] as int;
+    final videoDuration = double.parse('${result['videoDuration']}');
     final data = result['data'] as Uint8List;
     assert(depth == 32, '$depth bit not supported');
     debugPrint(
@@ -41,6 +42,13 @@ class ThumblrWindows extends ThumblrPlatform {
     final completer = Completer<ui.Image>();
     ui.decodeImageFromPixels(
         data, width, height, ui.PixelFormat.bgra8888, completer.complete);
-    return completer.future;
+    final image = await completer.future;
+    return Thumbnail(
+      image: image,
+      width: width,
+      height: height,
+      depth: depth,
+      videoDuration: videoDuration / 10000000,
+    );
   }
 }
