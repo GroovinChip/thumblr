@@ -34,7 +34,7 @@ class MethodChannelThumblr extends ThumblrPlatform {
     final image = await completer.future;
     return Thumbnail(
       image: image,
-      videoDuration: Duration(seconds: videoLength),
+      videoDuration: videoLength,
     );
   }
 }

@@ -17,7 +17,7 @@ class Thumbnail {
   final ui.Image image;
 
   /// The duration of the video.
-  final Duration? videoDuration;
+  final int? videoDuration;
 
   /// The height of the thumbnail [image].
   final int? height;

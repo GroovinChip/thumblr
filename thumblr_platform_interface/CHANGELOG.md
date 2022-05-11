@@ -1,3 +1,6 @@
+## 0.3.1
+* Use `double` instead of `Duration` for `Thumbnail.videoDuration`
+
 ## 0.3.0+1
 * Export the `Thumbnail` class
 
