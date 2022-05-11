@@ -15,15 +15,25 @@ class MethodChannelThumblr extends ThumblrPlatform {
   MethodChannel get channel => _channel;
 
   @override
-  Future<ui.Image> generateThumbnail({
+  Future<Map<String, dynamic>> generateThumbnail({
     required String filePath,
     double position = 0.0,
   }) async {
-    final base64Thumbnail =
-        await _channel.invokeMethod('generateThumbnail', filePath);
-    final imageData = base64.decode(base64Thumbnail);
+    final result = (await _channel.invokeMapMethod<String, dynamic>(
+      'generateThumbnail',
+      {
+        'filePath': filePath,
+        'position': position.round(),
+      },
+    ))!;
+    final videoLength = result['videoLength'];
+    final imageData = base64.decode(result['data']);
     final completer = Completer<ui.Image>();
     ui.decodeImageFromList(imageData, completer.complete);
-    return completer.future;
+    final image = await completer.future;
+    return {
+      'image': image,
+      'videoLength': videoLength,
+    };
   }
 }

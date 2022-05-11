@@ -1,3 +1,7 @@
+## 0.3.0
+* `generateThumbnail` now returns a `Map<String, dynamic>` so that more data related to the thumbnail can be returned.
+For example, the `width` and `height` of the thumbnail can be returned, as well as the length of the video file.
+
 ## 0.2.0
 * NEW: position parameter
 
