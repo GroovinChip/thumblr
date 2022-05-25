@@ -1,3 +1,6 @@
+## 0.4.0
+* Support thumbnail generation from URL's
+
 ## 0.3.0+1
 * run `flutter format`
 

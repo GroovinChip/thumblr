@@ -16,8 +16,14 @@ public class ThumblrMacosPlugin: NSObject, FlutterPlugin {
         let path = arguments["filePath"] as? String,
         let position = arguments["position"] as? Int64 {
           do {
-            let pathURL = URL(fileURLWithPath: path)
-            let asset = AVURLAsset(url: pathURL, options: nil)
+            let pathURL: URL?
+            if (path.isValidURL) {
+              pathURL = URL(string: path)
+            } else {
+              pathURL = URL(fileURLWithPath: path)
+            }
+            // let pathURL = URL(fileURLWithPath: path)
+            let asset = AVURLAsset(url: pathURL!, options: nil)
             let generator = AVAssetImageGenerator(asset: asset)
             generator.appliesPreferredTrackTransform = true
             let cgImage = try generator.copyCGImage(at: CMTimeMake(value: position, timescale: 1), actualTime: nil)
@@ -37,4 +43,16 @@ public class ThumblrMacosPlugin: NSObject, FlutterPlugin {
       result(FlutterMethodNotImplemented)
     }
   }
+}
+
+extension String {
+    var isValidURL: Bool {
+        let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        if let match = detector.firstMatch(in: self, options: [], range: NSRange(location: 0, length: self.utf16.count)) {
+            // it is a link, if the match covers the whole string
+            return match.range.length == self.utf16.count
+        } else {
+            return false
+        }
+    }
 }
