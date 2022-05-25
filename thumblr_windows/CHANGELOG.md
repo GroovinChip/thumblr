@@ -1,3 +1,6 @@
+## 0.0.3+1
+* Update to latest version of `thumblr_platform_interface`
+
 ## 0.0.3
 * Update to latest version of `thumblr_platform_interface` and make required changes
 * Returns the duration of the video in seconds
