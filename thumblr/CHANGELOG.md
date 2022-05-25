@@ -1,3 +1,6 @@
+## 0.0.4
+* Update macos implementation
+
 ## 0.0.3
 * Update to latest platform interface & endorsed implementations
 
