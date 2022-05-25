@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
+export 'package:thumblr_platform_interface/src/platform_interface/thumbnail.dart';
 
 /// Generates a thumbnail for a given video file.
-Future<ui.Image> generateThumbnail({
+Future<Thumbnail> generateThumbnail({
   required String filePath,
   double position = 0.0,
 }) async {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _position = ValueNotifier<double>(0.0);
-  ui.Image? _thumbnail;
+  Thumbnail? _thumbnail;
 
   @override
   void initState() {
@@ -39,7 +38,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> getThumbnail() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
-    ui.Image? _thumb;
+    Thumbnail? _thumb;
     try {
       _thumb = await generateThumbnail(
         filePath:
@@ -70,8 +69,8 @@ class _MyAppState extends State<MyApp> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
-                  child: _thumbnail != null
-                      ? RawImage(image: _thumbnail!)
+                  child: _thumbnail?.image != null
+                      ? RawImage(image: _thumbnail!.image)
                       : const SizedBox.shrink(),
                 ),
               ),
