@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
     try {
       _result = await ThumblrPlatform.instance.generateThumbnail(
         filePath:
-            '/Users/groovinchip/Documents/stream_chat_flutter desktop feature clips/gallery nav controls.mp4',
+            'https://www.youtube.com/watch?v=cH6HKIOG3Nc',
         position: _position.value,
       );
     } on PlatformException catch (e) {

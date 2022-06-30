@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:thumblr/thumblr.dart';
+import 'package:thumblr_platform_interface/thumblr_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,12 +38,11 @@ class _MyAppState extends State<MyApp> {
   Future<void> getThumbnail() async {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
-    Thumbnail? _thumb;
+    Thumbnail? result;
     try {
-      _thumb = await generateThumbnail(
-        filePath:
-            'https://www.youtube.com/watch?v=IOk_QzEgY2Q',
-        position: 0.0,
+      result = await ThumblrPlatform.instance.generateThumbnail(
+        filePath: 'https://www.youtube.com/watch?v=39YS8BPok-s',
+        position: _position.value,
       );
     } on PlatformException catch (e) {
       debugPrint('Failed to generate thumbnail: ${e.message}');
@@ -56,7 +55,7 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() => _thumbnail = _thumb);
+    setState(() => _thumbnail = result);
   }
 
   @override
@@ -70,20 +69,33 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
                   child: _thumbnail?.image != null
-                      ? RawImage(image: _thumbnail!.image)
+                      ? RawImage(image: _thumbnail?.image)
                       : const SizedBox.shrink(),
                 ),
               ),
             ),
-            ValueListenableBuilder(
-              valueListenable: _position,
-              builder: (BuildContext context, double value, Widget? child) {
-                return Slider(
-                  value: value,
-                  onChanged: _onSeekPosition,
-                  onChangeEnd: _onSeekEnd,
-                );
-              },
+            Row(
+              children: [
+                const SizedBox(width: 8.0),
+                const Text('0.0'),
+                Expanded(
+                  child: ValueListenableBuilder(
+                    valueListenable: _position,
+                    builder:
+                        (BuildContext context, double value, Widget? child) {
+                      return Slider(
+                        min: 0.0,
+                        max: _thumbnail?.videoDuration ?? 1.0,
+                        value: value,
+                        onChanged: _onSeekPosition,
+                        onChangeEnd: _onSeekEnd,
+                      );
+                    },
+                  ),
+                ),
+                Text('${_thumbnail?.videoDuration ?? 1.0}'),
+                const SizedBox(width: 8.0),
+              ],
             ),
           ],
         ),
