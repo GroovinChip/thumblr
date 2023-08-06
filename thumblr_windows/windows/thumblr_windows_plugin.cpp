@@ -228,6 +228,12 @@ namespace
 
       data.resize(cbBitmapData);
       std::memcpy(&data[0], pBitmapData, cbBitmapData);
+
+        for (int i = 0; i < data.size(); ++i) {
+          if ((i + 1) % 4 == 0) {
+              data[i] = 0xFF;
+          }
+      }
       
 done:
       if (pBitmapData && pBuffer)  {
